@@ -12,7 +12,7 @@ TEST_K = [1, 3, 5, 7]
 #   A bit of ugly hack, but there doesn't really exist a better way
 import sys
 sys.path.append("..")
-from usefull.preprocessing import check_data, check_dimension, preprocess_queries
+from useful.preprocessing import check_data, check_dimension, preprocess_queries
 
 
 def knn(data, queries, k=5, preprocess=True, target_idx=None, warnings=True):
