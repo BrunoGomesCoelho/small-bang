@@ -1,10 +1,13 @@
+import pandas as pd
 import numpy as np
 from sklearn import datasets
-from scipy import stats
+from scipy import stats 
 
-# For testing
+# For comparing with our results
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
+
 TEST_PERCENT = 0.3
 TEST_K = [1, 3, 5, 7]
 
@@ -53,11 +56,27 @@ if __name__ == "__main__":
     iris = datasets.load_iris()
     data = np.column_stack((iris.data, iris.target))
     train, test = train_test_split(data, test_size=TEST_PERCENT)
+    y_test = test[:, 4]
+    results_dic = {}
 
-    print(f"Training on {(1-TEST_PERCENT)*100}% of the iris data and "\
+    print(f"Training on {(1-TEST_PERCENT)*100}% of the iris data and ", 
             f"checking {len(TEST_K)} values for K")
+    print("Also checking scikit-learns knn implementation")
+
     for k in TEST_K:
+        sci_clf = KNeighborsClassifier(n_neighbors=k)
+        sci_clf.fit(train[:, 0:4], train[:, 4])
+        sci_pred = sci_clf.predict(test[:, 0:4])
+        
         predictions = knn(train, test[:, 0:4], k=k)
-        print(f"Results for K = {k}")
+        print(f"Our results for K = {k}")
         print(classification_report(test[:, 4], predictions))
         print("\n\n")
+
+        results_dic[k] = (accuracy_score(y_test, predictions),
+                            accuracy_score(y_test, sci_pred))
+
+    results = pd.DataFrame(results_dic, index=["Our KNN", "Sklearn KNN"])
+    results.columns = [f"k={x}" for x in results.columns]
+    print(results)
+
